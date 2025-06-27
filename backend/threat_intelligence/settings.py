@@ -190,6 +190,8 @@ SOCIALACCOUNT_PROVIDERS = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -207,6 +209,14 @@ CELERY_BEAT_SCHEDULE = {
     'fetch-threat-feeds': {
         'task': 'threats.tasks.fetch_threat_feeds',
         'schedule': timedelta(minutes=30),  # Run every 30 minutes
+    },
+    'update-daily-metrics': {
+        'task': 'analytics.tasks.update_daily_metrics',
+        'schedule': timedelta(hours=1),  # Run every hour
+    },
+    'check-ml-model-health': {
+        'task': 'analytics.tasks.check_ml_model_health',
+        'schedule': timedelta(minutes=5),  # Check every 5 minutes
     },
 }
 
@@ -236,6 +246,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'analytics': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
     },
 }
 
@@ -243,3 +258,7 @@ LOGGING = {
 THREAT_ALERT_THRESHOLD = config('THREAT_ALERT_THRESHOLD', default=7, cast=int)
 CVE_API_URL = 'https://cve.circl.lu/api/last'
 MALWARE_FEED_URL = 'https://bazaar.abuse.ch/export/json/recent/'
+
+# ML Model API Settings
+ML_MODEL_API_URL = config('ML_MODEL_API_URL', default='http://localhost:8000')
+ML_MODEL_TIMEOUT = config('ML_MODEL_TIMEOUT', default=10, cast=int)
